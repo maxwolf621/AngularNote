@@ -1,7 +1,53 @@
 # Types
-- [EveryDayType](https://www.typescriptlang.org/docs/handbook/2/everyday-types.html)
 
-## Any 
+- [Types](#types)
+  - [Reference](#reference)
+  - [Types In Transcript](#types-in-transcript)
+  - [Any type](#any-type)
+    - [`any` type checking](#any-type-checking)
+    - [strictNullChecks](#strictnullchecks)
+    - [Non-null Assertion Operator (Postfix `!`)](#non-null-assertion-operator-postfix-)
+  - [`never`](#never)
+  - [`unknown`](#unknown)
+  - [`typeof` and `instanceof`](#typeof-and-instanceof)
+  - [(DATA) Type Annotations](#data-type-annotations)
+  - [Functions](#functions)
+    - [Anonymous Functions](#anonymous-functions)
+  - [Object Types](#object-types)
+  - [Undefined](#undefined)
+  - [Intersection Types `&`](#intersection-types-)
+  - [Union Type (`|`)](#union-type-)
+  - [Type Aliases](#type-aliases)
+  - [Interface](#interface)
+  - [Type Assertions (`as`)](#type-assertions-as)
+      - [`(expr as any) as T`](#expr-as-any-as-t)
+    - [Type Declaration VS Type Assertion](#type-declaration-vs-type-assertion)
+    - [Genetics VS Type Assertion](#genetics-vs-type-assertion)
+  - [Literal Types](#literal-types)
+      - [`boolean` literals](#boolean-literals)
+    - [Literal Inference](#literal-inference)
+  - [Less Common Primitives](#less-common-primitives)
+  - [`Symbol(....)`](#symbol)
+  - [Tuple Types](#tuple-types)
+    - [Tuple's Javascript array destructuring](#tuples-javascript-array-destructuring)
+    - [`readonly` Tuple Types](#readonly-tuple-types)
+## Reference 
+[EveryDayType](https://www.typescriptlang.org/docs/handbook/2/everyday-types.html)  
+[Type Inference & Annotation](https://learn.appointment-bot.webzyno.com/docs/typescript/type-inference-annotation)
+
+## Types In Transcript
+
+- Primitive Types： `number, string, boolean, undefined, null, ES6 介紹的 symbol, and`void
+- Object Types : `JSON`,`Array<T>` or `T[]`, instance of the Class, Enum and Tuple
+- Function Types
+- Literal Type
+  - Object Literal 
+  - boolean Literal
+- `any`、`never` and `unknown`
+- union (`|`) 與 intersection (`&`) 
+- Generic Types
+
+## Any type
 
 you can use `any` whenever you don’t want a PARTICULAR value to cause typechecking errors.
 
@@ -21,7 +67,157 @@ const n: number = obj;
 - The `any` type is useful **when you don’t want to write out a long type just to convince TypeScript that a particular line of code is okay.**
 - When you don’t specify a type, and TypeScript can’t infer it from context, the compiler will typically default to `any`.
 
-## Type Annotations on Variables
+
+
+If programmer doesn't initialize the variable, typescript infers it as `any` type
+```typescript
+// without initializing
+// you can assign any value to variable 
+let messageToSend;
+anuVariable = 'NineFiveTwoSeven';
+anyVariable = 9527;
+
+
+let absoluteNothing: undefined = undefined;
+let literallyAbsoluteNothing: null = null;
+
+// Warning
+absoluteNothing = 123;
+literallyAbsoluteNothing = "I can't live in this variable now...";
+```
+
+Variable with Type Annotation when it has no value to be initialized to prevent from assigning it to other variable as `any` type
+```typescript
+// With Type Annotation 
+let canBeNullableString: string;
+
+canBeNullableString = 'hello';
+
+canBeNullableString = undefined;    // error
+canBeNullableString = null;         // error
+
+let canBeNullableString: string;
+
+// error
+let myString = canBeNullableString;
+canBeNullableString = 'hello';
+```
+
+### `any` type checking
+ 
+To signal absent or uninitialized value (`null` and `undefined`)
+
+```typescript
+// typescript infers them as any type
+let notingUndefined = undefined; 
+let nothingNull = null;
+```
+
+### strictNullChecks
+
+**With strictNullChecks on, when a value is `null` or `undefined`, you will need to test for those values before using methods or properties on that value.**
+
+we can use narrowing to check for values that might be `null`
+```typescript
+function doSomething(x: string | null) {
+  if (x === null) {
+    // do nothing
+  } else {
+    console.log("Hello, " + x.toUpperCase());
+  }
+}
+```
+
+### Non-null Assertion Operator (Postfix `!`)
+
+TypeScript also has a special syntax for removing `null` and `undefined` from a type without doing any explicit checking. Writing `!` after any expression is effectively a type assertion that the value isn’t `null` or `undefined`
+```typescript
+function liveDangerously(x?: number | null) {
+  // No error
+  console.log(x!.toFixed());
+}
+```
+
+It’s important to only use `!` when you know that the value can’t be `null` or `undefined`.
+
+
+## `never`
+
+`never` is not `void` and it built for function that **having not returned value** (e.g. throw Error) or **infinity loop**
+
+```typescript
+// Not have a reachable end point
+function error(message: string): never {
+  throw new Error(message);
+}
+
+// error inferred return type is never
+function fail() {
+  return error("Something failed");
+}
+
+// Not have a reachable end point
+function infiniteLoop(): never {
+  while (true) {}
+}
+```
+
+## `unknown`
+
+What is the Difference btw `any` and `unknown`
+- **`unknown` which is the type-safe counterpart of `any`**. 
+
+在 TypeScript 中，僅有 `Any` 與 `Unknown` 型別可以被存放任意值，作為更嚴謹的 `Unknown` 型別，就會有更嚴格的規範
+
+- Anything is assignable to `unknown`, but `unknown` isn't assignable to anything but itself and `any` without a type assertion or a control flow based narrowing.   
+Likewise, **no operations are permitted on an `unknown` without first asserting or narrowing to a more specific type.**
+
+- **`unknown` type can be assigned to other types**
+```typescript
+// Anything is assignable to unknown
+let value: unknown = 3;
+value = "Ian";
+value = undefined;
+value = null;
+value = true;
+
+
+let value1: unknown = value;   // anything is assignable to unknown
+let value2: any = value;       // anything is assignable to any
+
+// Only unknown is assignable to itself
+let value3: number = value;   // Error 
+let value4: boolean = value;  // Error
+let value5: string = value;   // Error
+
+let vAny: any = 10;          // We can assign anything to any
+let vUnknown: unknown =  10; // We can assign anything to unknown just like any 
+
+let s1: string = vAny;       // Any is assignable to anything 
+let s2: string = vUnknown;   // Invalid; we can't assign vUnknown to any other type (without an explicit assertion)
+vAny.method();     // OK; anything goes with any
+vUnknown.method(); // Not Ok ; we don't know anything about this variable
+
+let value: unknown;
+let value2: any;
+value2.substring(); // OK (may cause accidents)
+value.substring();  // Error : Object is of type 'unknown'
+```
+
+## `typeof` and `instanceof`
+
+通常檢測原始型別都是為用 `typeof`
+```typescript
+typeof value === ''
+```
+
+通常廣義物件或類別（Class）**建造出來的物件則是會用`instanceof`
+```typescript
+someObject instanceof ObjectBelongingClass
+```
+
+
+## (DATA) Type Annotations 
 
 you can optionally add a type annotation to explicitly specify the type of the variable via `let` or `const`:
 ```typescript
@@ -84,10 +280,13 @@ names.forEach((s) => {
 The most common sort of type is an object type. 
 > To define an object type, we simply list its properties and their types.
 
-For example
 ```typescript
-// parameter pt is object type 
-// type obj = { x : number , y : number }
+type obj = { x : number , y : number }
+function printCoord(pt : obj){
+  //...
+}
+
+// or 
 function printCoord(pt: { x: number; y: number }) {
   console.log("The coordinate's x value is " + pt.x);
   console.log("The coordinate's y value is " + pt.y);
@@ -97,20 +296,8 @@ printCoord({ x: 3, y: 7 });
 ```
 - **The type part of each property is also optional. If you don’t specify a type, it will be assumed to be `any`.**
 
-### Optional Properties
 
-Object types can also specify that some or all of their properties are optional. 
-
-> To do this, add a `?` after the property name:
-
-```typescript 
-function printName(obj: { first: string; last?: string }) {
-  // ...
-}
-// Both OK
-printName({ first: "Bob" });
-printName({ first: "Alice", last: "Alisson" });
-```
+## Undefined
 
 In JavaScript, if you access a property that doesn’t exist, you’ll get the value `undefined` rather than a runtime error.   
 Because of this, when you read from an optional property, you’ll have to check for `undefined` before using it.
@@ -129,8 +316,20 @@ function printName(obj: { first: string; last?: string }) {
   console.log(obj.last?.toUpperCase());
 }
 ```
+## Intersection Types `&`
 
-## Union Type
+An intersection type represents an entity that is of all types. 
+```typescript
+function extend <A, B> (a: A, b: B): A & B {
+  
+  Object.keys(b).forEach(key => {
+    a[key] = b[key]
+  })
+
+  return a as A & B
+}
+```
+## Union Type (`|`)
 
 A union type is a type formed from two or more other types, representing values that may be any one of those types. 
 
@@ -145,7 +344,7 @@ printId("202");
 
 // Error
 printId({ myID: 22342 });
-// object type is not number | string type
+// object type is not number | string typ
 ```
 
 **TypeScript will only allow an operation if it is valid for every member of the union.**    
@@ -197,9 +396,8 @@ Notice that given two sets with corresponding facts about each set, only the int
 For example, if we had a room of tall people wearing hats, and another room of Spanish speakers wearing hats, after combining those rooms, the only thing we know about every person is that they must be wearing a hat.
 
 ## Type Aliases
+**A type alias is exactly that - a name for any type or group of types.**   
 
-**A type alias is exactly that - a name for any type.**   
-The syntax for a type alias is:
 ```typescript 
 // Type named Point
 type Point = {
@@ -216,14 +414,14 @@ printCoord({ x: 100, y: 100 });
 ```
 
 You can actually use a type `alias` to give a name to any type at all, not just an object type.    
-- For example, a type alias can name a union type:    
 ```typescript
-type ID = number | string;
+// creating ID type 
+type ID = number | tring;
 ```
 **Note that aliases are only aliases - you cannot use type aliases to create _different/distinct versions_ of the same type.**
 
-When you use the alias, it’s exactly as if you had written the aliased type.    
-In other words, this code might look illegal, but is OK according to TypeScript because both types are aliases for the same type:
+
+When you use the alias, it’s exactly as if you had written the aliased type.  
 ```typescript
 type UserInputSanitizedString = string;
  
@@ -236,6 +434,26 @@ let userInput = sanitizeInput(getInput());
  
 // Can still be re-assigned with a string though
 userInput = "new input";
+```
+
+```typescript
+type Name = string;
+type NameResolver = () => string;
+type NameOrResolver = Name | NameResolver;
+
+type Human = Male | Female
+
+// tuple 
+type PetList = [Dog, Pet]
+
+// using type instead getName(n : string | NameResolver)   
+function getName(n: NameOrResolver): Name {
+    if (typeof n === 'string') {
+        return n;
+    } else {
+        return n();
+    }
+}
 ```
 
 ## Interface 
@@ -299,8 +517,6 @@ type Window = {
 // Error: Duplicate identifier 'Window'.
 ```
         
-
-
 ## Type Assertions (`as`)
 
 **Sometimes you will have information about the type of a value that TypeScript can’t know about.**
@@ -322,21 +538,24 @@ Because type assertions are removed at compile-time, there is no runtime checkin
 There won’t be an exception or `null` generated if the type assertion is wrong.
 
 **TypeScript only allows type assertions which convert to a more specific or less specific version of a type.**
-This rule prevents “impossible” coercions like:
+
+This rule, it prevents impossible coercions like:
 ```typescript
 const x = "hello" as number;
-// Conversion of type 'string' to type 'number' may be a mistake because neither type sufficiently overlaps with the other. If this was intentional, convert the expression to 'unknown' first.
+
+// Eoor
+Conversion of type 'string' to type 'number' may be a mistake because neither type 
+sufficiently overlaps with the other. If this was intentional, 
+convert the expression to 'unknown' first.
 ```
 
+#### `(expr as any) as T`
+
 Sometimes this rule can be too conservative and will disallow more complex coercions that might be valid.   
+
 If this happens, you can use two assertions, first to `any` (or `unknown`), then to the desired type:
 ```typescript
 const a = (expr as any) as T;
-```
-
-### Type Conversion VS Type Assertion
-
-```typescript 
 ```
 
 ### Type Declaration VS Type Assertion
@@ -359,11 +578,9 @@ const animal: Animal = {
 // Cat is subclass of animal 
 let tom: Cat = animal;
 ```
-
-### Genetics And Type Assertion
-
+### Genetics VS Type Assertion
 ```typescript
-// type assertion
+// Assertion
 function getCacheData(key: string): any {
     return (window as any).cache[key];
 }
@@ -376,7 +593,7 @@ interface Cat {
 const tom = getCacheData('tom') as Cat;
 tom.run();
 
-// generics
+// generic
 function getCacheData<T>(key: string): T {
     return (window as any).cache[key];
 }
@@ -390,28 +607,13 @@ const tom = getCacheData<Cat>('tom');
 tom.run();
 ```
 
-
-## Intersection Types `&`
-
-An intersection type represents an entity that is of all types. 
-- For example:
-```typescript
-function extend <A, B> (a: A, b: B): A & B {
-  
-  Object.keys(b).forEach(key => {
-    a[key] = b[key]
-  })
-
-  return a as A & B
-}
-```
-
 ## Literal Types
 
-**In addition to the general types `string` and `number`, we can refer to specific strings and numbers in type positions(自定義型別)**.
+**In addition to the general types `string` and `number`, we can refer to specific strings and numbers in type positions**.
 
 ```typescript
 // let and var represent any possible string
+// Type of variable changingString is Hello World
 let changingString = "Hello World";
 changingString = "Olá Mundo";
 changingString;
@@ -432,8 +634,7 @@ x = "howdy";
 ```
 - It’s not much use to have a variable that can only have one value
 
-But by combining literals into unions, you can express a much more useful concept.
-- For example, **functions that only accept a certain set of known values**:
+By combining literals into unions, you can express a much more useful concept. For example, **functions that only accept a certain set of known values**:
 ```typescript 
 // Alignment only allows three value (left, right or center)
 function printText(s: string, alignment: "left" | "right" | "center") {
@@ -441,7 +642,10 @@ function printText(s: string, alignment: "left" | "right" | "center") {
 }
 printText("Hello, world", "left");
 printText("G'day, mate", "centre");
-// Argument of type '"centre"' is not assignable to parameter of type '"left" | "right" | "center"'.
+
+// error
+Argument of type '"centre"' is not assignable to 
+parameter of type '"left" | "right" | "center"'.
 ```
 
 Numeric literal types work the same way:
@@ -464,24 +668,26 @@ configure("automatic");
 // Argument of type '"automatic"' is not assignable to parameter of type 'Options | "auto"'.
 ```
 
-### `boolean` literals
+#### `boolean` literals
 
 There are only two boolean literal types, and as you might guess, they are the types `true` and `false`. 
 
 The type boolean itself is actually just an alias for the `union true | false.`
 
-## Literal Inference
+### Literal Inference
 
-When you initialize a variable with an object, TypeScript assumes that the properties of that object might change values later. 
-- For example
+When you initialize a variable with an object, TypeScript assumes that the properties of that object might change values later. For example ::
 ```typescript
 // Typescript knows obj.counter type is number 
 const obj = { counter: 0 };
+
 if (someCondition) {
   // properties of obj changed 
   obj.counter = 1;
 }
+```
 
+```typescript
 const req = { url: "https://example.com", method: "GET" };
 handleRequest(req.url, req.method);
 // Argument of type 'string' is not assignable to parameter of type '"GET" | "POST"'.
@@ -492,7 +698,7 @@ handleRequest(req.url, req.method);
 There are two ways to work around this.        
 - You can change the inference by adding a TYPE ASSERTION in either location:
 ```typescript
-// Change 1  :
+// Change 1 :
 const req = { url: "https://example.com", method: "GET" as "GET" };
 
 // Change 2
@@ -508,37 +714,6 @@ handleRequest(req.url, req.method);
 ```
 The `as const` suffix acts like const but for the type system, ensuring that all properties are assigned the literal type instead of a more general version like `string` or `number`.
 
-## `null` and `undefined`
- 
-To signal absent or uninitialized value (`null` and `undefined`)
-
-### `strictNullChecks` on
-
-With `strictNullChecks` on, when a value is `null` or `undefined`, you will need to test for those values before using methods or properties on that value.
-
-we can use narrowing to check for values that might be `null`
-```typescript
-function doSomething(x: string | null) {
-  if (x === null) {
-    // do nothing
-  } else {
-    console.log("Hello, " + x.toUpperCase());
-  }
-}
-```
-
-### Non-null Assertion Operator (Postfix `!`)
-
-TypeScript also has a special syntax for removing `null` and `undefined` from a type without doing any explicit checking. Writing `!` after any expression is effectively a type assertion that the value isn’t `null` or `undefined`
-```typescript
-function liveDangerously(x?: number | null) {
-  // No error
-  console.log(x!.toFixed());
-}
-```
-
-It’s important to only use `!` when you know that the value can’t be `null` or `undefined`.
-
 
 ## Less Common Primitives
 
@@ -551,8 +726,9 @@ const oneHundred: bigint = BigInt(100);
 const anotherHundred: bigint = 100n;
 ```
 
-## symbol
-There is a primitive in JavaScript used to create a globally **unique reference** via the function `Symbol()`:
+## `Symbol(....)`
+There is a primitive in JavaScript used to create a globally **unique reference** via the function `Symbol()`
+
 ```typescript
 // difference reference 
 const firstName = Symbol("name");
@@ -565,4 +741,157 @@ if (firstName === secondName) {
     * and 'typeof secondName' have no overlap.
     */
 }
+```
+## Tuple Types
+
+**A tuple type is another sort of Array type that knows exactly how many elements it contains, and exactly which types it contains at specific positions.**  
+unlike array it contains different data type.
+```typescript 
+pe StringNumberPair = [string, number];
+```
+- `StringNumberPair` is a tuple type of `string` and `number`.  
+- To the type system, StringNumberPair describes arrays whose 0 index contains a `string` and whose 1 index contains a `number`.
+
+Tuple Types Like `ReadonlyArray`, it has no representation at runtime, but is significant to TypeScript.  
+```typescript 
+function doSomething(pair: [string, number]) {
+  const a = pair[0];
+       
+  const a: string
+
+  const b = pair[1];
+       
+  const b: number
+  // ...
+}
+ 
+doSomething(["hello", 42]);
+```
+
+If we try to index past the number of elements, we’ll get an error.
+```typescript 
+function doSomething(pair: [string, number]) {
+  // ...
+ 
+  const c = pair[2];
+  // Tuple type '[string, number]' of length '2' has no element at index '2'.
+}
+```
+
+### Tuple's Javascript array destructuring
+
+We can also destructure tuples using JavaScript’s array destructuring.
+```typescript
+function doSomething(stringHash: [string, number]) {
+  const [inputString, hash] = stringHash;
+ 
+  console.log(inputString);
+  const inputString: string
+ 
+  console.log(hash);
+  const hash: number
+}
+```
+
+Tuple types are useful in heavily convention-based APIs, **where each element’s meaning is obvious.**  
+- This gives us flexibility in whatever we want to name our variables when we destructure them.  
+
+However, since not every user holds the same view of what’s obvious, it may be worth reconsidering whether using objects with descriptive property names may be better for your API.
+
+Other than those length checks, simple tuple types like these are equivalent to types which are versions of Arrays that declare properties for specific indexes, and that declare length with a numeric literal type.
+```typescript 
+interface StringNumberPair {
+  // specialized properties
+  length: 2;
+  0: string;
+  1: number;
+ 
+  // Other 'Array<string | number>' members...
+  slice(start?: number, end?: number): Array<string | number>;
+}
+```
+
+Another thing you may be interested in is that tuples can have optional properties by writing out a question mark (`?` after an element’s type).    
+
+Optional tuple elements can only come at the end, and also affect the type of length.
+```typescript 
+type Either2dOr3d = [number, number, number?];
+ 
+function setCoordinate(coord: Either2dOr3d) {
+  const [x, y, z] = coord;
+  const z: number | undefined
+  
+  console.log(`Provided coordinates had ${coord.length} dimensions`);
+  
+  (property) length: 2 | 3
+}
+```
+Tuples can also have rest elements, which have to be an array/tuple type.
+```typescript 
+type StringNumberBooleans = [string, number, ...boolean[]];
+type StringBooleansNumber = [string, ...boolean[], number];
+type BooleansStringNumber = [...boolean[], string, number];
+```
+1. `StringNumberBooleans` describes a tuple whose first two elements are `string` and `number` respectively, but which may have any number of `booleans` following.
+2. `StringBooleansNumber` describes a tuple whose first element is string and then any number of `booleans` and ending with a `number`.
+3. `BooleansStringNumber` describes a tuple whose starting elements are any number of `booleans` and ending with a `string` then a `number`.
+
+A tuple with a rest element has no set length     
+it only has a set of well-known elements in different positions.   
+```typescript 
+const a: StringNumberBooleans = ["hello", 1];
+const b: StringNumberBooleans = ["beautiful", 2, true];
+const c: StringNumberBooleans = ["world", 3, true, false, true, false, true];
+```
+
+Why might optional and rest elements be useful? Well, it allows TypeScript to correspond tuples with parameter lists. 
+
+Tuples types can be used in rest parameters and arguments, so that the following:
+```typescript 
+function readButtonInput(...args: [string, number, ...boolean[]]) {
+  const [name, version, ...input] = args;
+  // ...
+}
+```
+is basically equivalent to:
+```typescript 
+function readButtonInput(name: string, version: number, ...input: boolean[]) {
+  // ...
+}
+```
+This is handy when you want to take a variable number of arguments with a rest parameter, and you need a minimum number of elements, but you don’t want to introduce intermediate variables.
+
+### `readonly` Tuple Types
+
+tuples types have `readonly` variants, and can be specified by sticking a `readonly` modifier in front of them - just like with array shorthand syntax.
+```typescript 
+function doSomething(pair: readonly [string, number]) {
+  // ...
+}
+
+function doSomething(pair: readonly [string, number]) {
+  pair[0] = "hello!" ;
+  
+  Cannot assign to '0' because it is a read-only property.
+}
+```
+
+**Tuples tend to be created and left un-modified in most code, so annotating types as readonly tuples when possible is a good default.** 
+
+This is also important given that array literals with const assertions will be inferred with `readonly` 
+tuple types.   
+```typescript 
+let point = [3, 4] as const;
+ 
+// here `distanceFromOrigin` never modifies its elements, but expects a mutable tuple.  
+function distanceFromOrigin([x, y]: [number, number]) {
+  return Math.sqrt(x ** 2 + y ** 2);
+}
+
+
+// But we assign a const parameter  
+distanceFromOrigin(point);
+
+Argument of type 'readonly [3, 4]' is not assignable to parameter of type '[number, number]'.
+The type 'readonly [3, 4]' is 'readonly' and cannot be assigned to the mutable type '[number, number]'.
 ```

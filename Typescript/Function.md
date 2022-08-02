@@ -1,70 +1,71 @@
 # Functions
 - [Functions](#functions)
-  * [Function Type Expressions](#function-type-expressions)
-  * [Call Signatures](#call-signatures)
-  * [Construct(`new`) Signatures](#construct--new---signatures)
-  * [Generic Functions](#generic-functions)
-  * [Inference](#inference)
-  * [Constraints](#constraints)
-    + [Specifying Type Arguments](#specifying-type-arguments)
-    + [Use Fewer Type Parameters](#use-fewer-type-parameters)
-    + [Type Parameters Should Appear Twice](#type-parameters-should-appear-twice)
-  * [Optional Parameters](#optional-parameters)
-    + [Optional Parameters in Callbacks](#optional-parameters-in-callbacks)
-  * [Function Overloads](#function-overloads)
-    + [Writing Good Overloads](#writing-good-overloads)
-    + [Declaring `this` in a Function](#declaring--this--in-a-function)
-  * [Other Types to Know About](#other-types-to-know-about)
-    + [`void`](#-void-)
-    + [object](#object)
-    + [`unknown`](#-unknown-)
-    + [never](#never)
-    + [`Function`](#-function-)
-  * [Rest Arguments](#rest-arguments)
-  * [`void` return type](#-void--return-type)
-  * [Call Signatures](#call-signatures-1)
-  * [Construct(`new`) Signatures](#construct--new---signatures-1)
-  * [Generic Functions](#generic-functions-1)
-  * [Inference](#inference-1)
-  * [Constraints](#constraints-1)
-    + [Specifying Type Arguments](#specifying-type-arguments-1)
-    + [Use Fewer Type Parameters](#use-fewer-type-parameters-1)
-    + [Type Parameters Should Appear Twice](#type-parameters-should-appear-twice-1)
-  * [Optional Parameters](#optional-parameters-1)
-    + [Optional Parameters in Callbacks](#optional-parameters-in-callbacks-1)
-  * [Function Overloads](#function-overloads-1)
-    + [Writing Good Overloads](#writing-good-overloads-1)
-    + [Declaring `this` in a Function](#declaring--this--in-a-function-1)
-  * [Other Types to Know About](#other-types-to-know-about-1)
-    + [`void`](#-void--1)
-    + [object](#object-1)
-    + [`unknown`](#-unknown--1)
-    + [never](#never-1)
-    + [`Function`](#-function--1)
-  * [Rest Arguments](#rest-arguments-1)
-  * [`void` return type](#-void--return-type-1)
+  - [Function as parameter in other function](#function-as-parameter-in-other-function)
+    - [Function tpe expressions ( `fn:( ... ) => returnType`)](#function-tpe-expressions--fn----returntype)
+    - [use a type alias to name a function type](#use-a-type-alias-to-name-a-function-type)
+  - [Call Signatures](#call-signatures)
+  - [Construct(`new`) Signatures](#constructnew-signatures)
+  - [Generic Functions](#generic-functions)
+  - [Inference](#inference)
+  - [Constraints `T extends A` (Generic Function)](#constraints-t-extends-a-generic-function)
+    - [Specifying Type Arguments](#specifying-type-arguments)
+    - [Use Fewer Type Parameters](#use-fewer-type-parameters)
+    - [Type Parameters Should Appear Twice](#type-parameters-should-appear-twice)
+  - [Optional Parameters](#optional-parameters)
+    - [Optional Parameters in Callbacks](#optional-parameters-in-callbacks)
+  - [Function Overloads](#function-overloads)
+    - [Writing Good Overloads](#writing-good-overloads)
+    - [Declaring `this` in a Function](#declaring-this-in-a-function)
+  - [Other Types to Know About](#other-types-to-know-about)
+    - [`void`](#void)
+    - [object](#object)
+    - [`unknown`](#unknown)
+    - [never](#never)
+    - [`Function`](#function)
+  - [Rest Arguments](#rest-arguments)
+  - [`void` return type](#void-return-type)
+  - [Call Signatures](#call-signatures-1)
+  - [Construct(`new`) Signatures](#constructnew-signatures-1)
+  - [Generic Functions](#generic-functions-1)
+  - [Inference](#inference-1)
+  - [Constraints](#constraints)
+    - [Specifying Type Arguments](#specifying-type-arguments-1)
+    - [Use Fewer Type Parameters](#use-fewer-type-parameters-1)
+    - [Type Parameters Should Appear Twice](#type-parameters-should-appear-twice-1)
+  - [Optional Parameters](#optional-parameters-1)
+    - [Optional Parameters in Callbacks](#optional-parameters-in-callbacks-1)
+  - [Function Overloads](#function-overloads-1)
+    - [Writing Good Overloads](#writing-good-overloads-1)
+    - [Declaring `this` in a Function](#declaring-this-in-a-function-1)
+  - [Other Types to Know About](#other-types-to-know-about-1)
+    - [`void`](#void-1)
+    - [object](#object-1)
+    - [`unknown`](#unknown-1)
+    - [never](#never-1)
+    - [`Function`](#function-1)
+  - [Rest Arguments](#rest-arguments-1)
+  - [`void` return type](#void-return-type-1)
 
-## Function Type Expressions
+
+## Function as parameter in other function 
+### Function tpe expressions ( `fn:( ... ) => returnType`)
 
 ```typescript 
-
 function greeter(fn: (a: string) => void) {
   fn("Hello, World");
 }
- 
+
 function printToConsole(s: string) {
   console.log(s);
 }
- 
+
 greeter(printToConsole);
 ```
 - The syntax `(a: string) => void` means _a function with one parameter, named `a`, of type `string`, that doesn’t have a return value (`void`)_.  
-Just like with function declarations, if a parameter type isn’t specified, it’s implicitly `any`.
-
-- the parameter name is required.   
+- Just like with function declarations, if a parameter type isn’t specified, it’s implicitly `any`.  
 The function type `(string) => void` means `(string : any) => void`
 
-Or use a type alias to name a function type
+###  use a type alias to name a function type
 ```typescript
 type GreetFunction = (a: string) => void;
 function greeter(fn: GreetFunction) {
@@ -73,12 +74,11 @@ function greeter(fn: GreetFunction) {
 ```
 
 ## Call Signatures
-
-Functions can have properties in addition to being callable.
-
+Functions can have properties in addition to being callable.   
 However, the function type expression syntax doesn’t allow for declaring properties. 
 
 If we want to describe something callable with properties, we can write a call signature in an object type:
+
 ```typescript
 // object type 
 type DescribableFunction = {
@@ -86,7 +86,7 @@ type DescribableFunction = {
   (someArg: number): boolean;
 };
 
-// callabe object type 
+// callable object type 
 function doSomething(fn: DescribableFunction) {
   console.log(fn.description + " returned " + fn(6));
 }
@@ -142,10 +142,8 @@ const u = firstElement([]);
 ```
 
 ## Inference
-
-Note that we didn’t have to specify Type in this sample.    
+    
 The type was inferred - chosen automatically - by TypeScript.  
-
 We can use multiple type parameters as well. 
 
 For example, a standalone version of map would look like this:
@@ -160,17 +158,17 @@ const parsed = map(["1", "2", "3"], (n) => parseInt(n));
 ```
 - TypeScript could infer both the type of the Input type parameter (from the given `string` array), as well as the Output type parameter based on the return value of the function expression (`number`).
 
-## Constraints
+## Constraints `T extends A` (Generic Function)
 
 Sometimes we want to relate two values, but can only operate on a certain subset of values. 
-
 In this case, we can use a constraint to limit the kinds of types that a type parameter can accept.
+- **We constrain the type parameter to that type by writing an `extends` clause:**
+
 
 Let’s write a function that returns the longer of two values. 
-To do this, we need a length property that’s a number. 
-**We constrain the type parameter to that type by writing an `extends` clause:**
 ```typescript
-function longest<Type extends { length: number }> (a: Type, b: Type) {
+function longest<Type extends { length: number }> (a: Type, b: Type) 
+{
   if (a.length >= b.length) {
     return a;
   } else {
@@ -187,20 +185,19 @@ const longerString = longest("alice", "bob");
 // Argument of type 'number' is not assignable to parameter of type '{ length: number; }'.
 const notOK = longest(10, 100);
 ```
-- Because we constrained `Type` to `{ length: number }`, we were allowed to access the `.length` property of the a and b parameters.   
+- Because we constrained `Type` to `{ length: number }`, we were allowed to access the `.length` property of the a and b parameters.
+
 Without the type constraint, we wouldn’t be able to access those properties because the values might have been some other type without a length property.
 - the call to `longest(10, 100)` is rejected because the `number` type doesn’t have a `.length` property.
 
 Working with Constrained Values
 ```typescript 
-function minimumLength<Type extends { length: number }>(
-  obj: Type,
-  minimum: number
-): Type {
+function minimumLength<Type extends { length: number }>( obj: Type, minimum: number): Type 
+{
   if (obj.length >= minimum) {
     return obj;
   } else {
-    return { length: minimum };
+    return { length : minimum };
     // Type '{ length: number; }' is not assignable to type 'Type'.
     /** 
      * '{ length: number; }' is assignable to the constraint of type 'Type', 
@@ -216,7 +213,7 @@ The problem is that the function promises to return the same kind of object as w
 If this code were legal, you could write code that definitely wouldn’t work:
 ```typescript 
 // 'arr' gets value { length: 6 }
-// minimumuLength return type should be array[] not number 
+// minimum Length return type should be array[] not number 
 const arr = minimumLength([1, 2, 3], 6);
 // and crashes here because arrays have
 // a 'slice' method, but not the returned object!

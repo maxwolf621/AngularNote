@@ -1,5 +1,9 @@
 # Generic 
 
+- [Generic](#generic)
+  - [Generic Constraints (`extends`)](#generic-constraints-extends)
+    - [Multiple generic](#multiple-generic)
+  - [Generic Interface](#generic-interface)
 
 ```typescript
 function createArray<T>(length: number, value: T): Array<T> {
@@ -10,27 +14,24 @@ function createArray<T>(length: number, value: T): Array<T> {
     return result;
 }
 
-createArray<string>(3, 'x'); // ['x', 'x', 'x']
+// These declarations are available
+createArray<string>(3, 'x'); 
 createArray<number>(3, 5); 
-// this works too
-createArray(3, 'x');
+createArray(3, 'x'); 
 ```
 
+## Generic Constraints (`extends`)
 
-## Generic Constraints 
-
-It is forbidden for 
+Not all `T` has the `length()` methods
 ```typescript
 function loggingIdentity<T>(arg: T): T {
-    // 
     console.log(arg.length);
     return arg;
 }   
 ```
-- not all `T` has the `length()` methods
  
-prevent from such problem by using `<T extends Class_Name>`
-```
+Prevent from such problem by using `<T extends Class_Name>`
+```typescript
 interface Lengthwise {
     length: number;
 }
@@ -41,7 +42,7 @@ function loggingIdentity<T extends Lengthwise>(arg: T): T {
 }
 ```
 
-### multiple generic
+### Multiple generic
 
 ```typescript
 function copyFields<T extends U, U>(target: T, source: U): T {
@@ -65,7 +66,7 @@ interface CreateArrayFunc {
 
 let createArray: CreateArrayFunc;
 
-createArray = function<T>(length: number, value: T): Array<T> {
+createArray = function <T> (length: number, value: T): Array<T> {
     let result: T[] = [];
     for (let i = 0; i < length; i++) {
         result[i] = value;

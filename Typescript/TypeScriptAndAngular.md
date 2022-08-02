@@ -1,6 +1,22 @@
 ###### tags: `Angular`
-# Brief Typescript 
-[TOC]
+
+# Typescript & Angular 
+
+- [Typescript & Angular](#typescript--angular)
+  - [Declare a type](#declare-a-type)
+  - [Constructor](#constructor)
+    - [Optional parameter (`?:`)](#optional-parameter-)
+    - [Access-modifier parameter in constructor](#access-modifier-parameter-in-constructor)
+  - [Property (Setter and Getter)](#property-setter-and-getter)
+  - [import a module](#import-a-module)
+  - [Arrow function](#arrow-function)
+  - [Interface](#interface)
+  - [Cohesion](#cohesion)
+  - [With Angular](#with-angular)
+  - [More Object-Orient Program way](#more-object-orient-program-way)
+  - [Service and dependency Injection](#service-and-dependency-injection)
+    - [Dependency Injection](#dependency-injection)
+
 ## Declare a type
 
 Basic Syntax   
@@ -10,16 +26,12 @@ Basic Syntax
 S : string = "what up";
 N : number = 1234;
 
-// array (of `any` type)
 arr0: any[] = [];
 arr : any[] = [1,2,3,4,5];
 
-// Or do just like python
 s = "what up";
 N = 1234;
 ```
-
-
 
 ## Constructor
 

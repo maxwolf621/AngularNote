@@ -1,4 +1,10 @@
-## Tuple
+# Tuple
+
+- [Tuple](#tuple)
+  - [`never`](#never)
+  - [`unknown`](#unknown)
+    - [Difference btw `any` and `unknown`](#difference-btw-any-and-unknown)
+  - [`typeof` and `instanceof`](#typeof-and-instanceof)
 
 ```typescript
 // Declare a tuple type
